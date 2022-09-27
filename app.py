@@ -47,7 +47,10 @@ def update_room(data):
     room = data['room']
     mkm={
         "url":data["url"],
-        "dura":data["duration"]
+        "dura":data["duration"],
+        "thumbnail":data["thumbnail"],
+        "title":data["title"],
+        "subtitle":data["subtitle"]
     }
     emit("room_updated",mkm, room=room)
 
