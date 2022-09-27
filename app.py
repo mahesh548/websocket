@@ -51,5 +51,13 @@ def update_room(data):
     }
     emit("room_updated",mkm, room=room)
 
+
+
+@socketio.on('sync')
+
+def sync(data):
+    room = data['room']
+    emit("sync", room=room)
+
 if __name__ == '__main__':
     app.run()
