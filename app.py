@@ -53,7 +53,8 @@ def update_room(data):
         "dura":data["duration"],
         "thumbnail":data["thumbnail"],
         "title":data["title"],
-        "subtitle":data["subtitle"]
+        "subtitle":data["subtitle"],
+        "paused":data["paused"]
     }
     emit("room_updated",mkm, room=room)
 
