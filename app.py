@@ -1,4 +1,5 @@
-from flask import Flask, render_template
+from socket import socket
+from flask import Flask, render_template,request
 from flask_socketio import SocketIO,join_room,send,leave_room,emit
 from flask_cors import CORS,cross_origin
 app = Flask(__name__)
@@ -11,7 +12,7 @@ app.config['SECRET_KEY'] = 'secret!'
 socketio = SocketIO(app, cors_allowed_origins="*")
 
 
-
+USERS={}
 @socketio.on('create')
 
 def create(data):
@@ -29,8 +30,10 @@ def on_join(data):
     room = data['room']
     print(room)
     join_room(room)
+    USERS[request.sid]={"room":room,"username":username}
     mkm={
-        "user":username
+        "username":username,
+        "id":request.sid
     }
     emit("user_joined",mkm, room=room)
 
@@ -54,7 +57,8 @@ def update_room(data):
         "thumbnail":data["thumbnail"],
         "title":data["title"],
         "subtitle":data["subtitle"],
-        "paused":data["paused"]
+        "paused":data["paused"],
+        "members":data["members"]
     }
     emit("room_updated",mkm, room=room)
 
@@ -66,5 +70,31 @@ def sync(data):
     room = data['room']
     emit("sync", room=room)
 
+
+
+@socketio.on("con")
+
+def j(data):
+    room=data["room"]
+    user=data["user"]
+    join_room(room)
+    USERS[request.sid]={"room":room,"username":user}
+    print(user+" joined the room "+room)
+
+
+@socketio.on('disconnect')
+
+def disconnect():
+    sid = request.sid
+    mkm={
+        "username":USERS[sid]["username"],
+        "id":sid
+    }
+    emit("user_leave",mkm,room=USERS[request.sid]["room"])
+
+   
+
+
 if __name__ == '__main__':
-    app.run()
+    #app.run()
+    socketio.run(app,host="192.168.238.69")
