@@ -2,6 +2,8 @@ from socket import socket
 from flask import Flask, render_template,request
 from flask_socketio import SocketIO,join_room,send,leave_room,emit
 from flask_cors import CORS,cross_origin
+import requests
+import json
 app = Flask(__name__)
 cors = CORS(app, resource={
     r"/*":{
@@ -13,6 +15,7 @@ socketio = SocketIO(app, cors_allowed_origins="*")
 
 
 USERS={}
+VIDEOCALL={}
 @socketio.on('create')
 
 def create(data):
@@ -20,6 +23,24 @@ def create(data):
     room = data['room']
     print(room)
     join_room(room)
+    head={"Authorization":"Bearer d59ea031470c7298d7d3c389b3757dc87ca91769cc4db45c6359650ae8961ccd"}
+    mkm={"name": room,
+       "privacy": "private",
+       
+       "properties" : {
+          "start_audio_off":False,
+          "start_video_off":False
+        }
+        }
+    r=requests.post("https://api.daily.co/v1/rooms/",headers=head,data=json.dumps(mkm))
+    mkm2={
+        "properties" :{
+            "room_name":room
+        }
+        
+    }
+    r=requests.post("https://api.daily.co/v1/meeting-tokens",headers=head,data=json.dumps(mkm2))
+    VIDEOCALL[room]=r.json()['token']
     emit("crate_success",username + ' Your Room Created, ROOM: ' +room, room=room)
 
 
@@ -92,9 +113,20 @@ def disconnect():
     }
     emit("user_leave",mkm,room=USERS[request.sid]["room"])
 
-   
+
+@socketio.on('videocall')
+
+def videocall(data):
+    room=data["room"]
+
+    mkm={
+        "token":VIDEOCALL[room]
+    }
+    emit("token",mkm,room=request.sid)
+
+
 
 
 if __name__ == '__main__':
     #app.run()
-    socketio.run(app,host="192.168.238.69")
+    socketio.run(app,host="localhost",port=8000)

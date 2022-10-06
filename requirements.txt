@@ -9,4 +9,4 @@ Werkzeug==2.0.3
 python-engineio==4.3.4
 python-socketio==5.7.1
 gevent-websocket==0.10.1
-
+requests==2.24.0
