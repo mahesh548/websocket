@@ -135,16 +135,9 @@ def videocall(data):
 
 
 if __name__ == '__main__':
-    #app.run()
-    socketio.run(app,host="localhost",port=8000)
+    app.run()
+    #socketio.run(app,host="localhost",port=8000)
 
 
-#For Video Call Room Deletions
 
-"""
 
- head={"Authorization":"Bearer d59ea031470c7298d7d3c389b3757dc87ca91769cc4db45c6359650ae8961ccd"}
-r=requests.delete("https://api.daily.co/v1/rooms/tanuja",headers=head)
-print(r.json()) 
-
-"""
