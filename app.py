@@ -41,6 +41,7 @@ def create(data):
     }
     r=requests.post("https://api.daily.co/v1/meeting-tokens",headers=head,data=json.dumps(mkm2))
     VIDEOCALL[room]=r.json()['token']
+    USERS[request.sid]={"room":room,"username":username,"post":"player"}
     emit("crate_success",username + ' Your Room Created, ROOM: ' +room, room=room)
 
 
@@ -51,7 +52,7 @@ def on_join(data):
     room = data['room']
     print(room)
     join_room(room)
-    USERS[request.sid]={"room":room,"username":username}
+    USERS[request.sid]={"room":room,"username":username,"post":"listener"}
     mkm={
         "username":username,
         "id":request.sid
@@ -107,11 +108,17 @@ def j(data):
 
 def disconnect():
     sid = request.sid
-    mkm={
+    if(USERS[sid]["post"]=="listener"):
+        mkm={
         "username":USERS[sid]["username"],
         "id":sid
-    }
-    emit("user_leave",mkm,room=USERS[request.sid]["room"])
+        }
+        emit("user_leave",mkm,room=USERS[request.sid]["room"])
+    if (USERS[sid]["post"]=="player"):
+        head={"Authorization":"Bearer d59ea031470c7298d7d3c389b3757dc87ca91769cc4db45c6359650ae8961ccd"}
+        room=USERS[request.sid]["room"]
+        r=requests.delete("https://api.daily.co/v1/rooms/"+room,headers=head)
+        emit("player_leave",room=USERS[request.sid]["room"])
 
 
 @socketio.on('videocall')
@@ -130,3 +137,14 @@ def videocall(data):
 if __name__ == '__main__':
     #app.run()
     socketio.run(app,host="localhost",port=8000)
+
+
+#For Video Call Room Deletions
+
+"""
+
+ head={"Authorization":"Bearer d59ea031470c7298d7d3c389b3757dc87ca91769cc4db45c6359650ae8961ccd"}
+r=requests.delete("https://api.daily.co/v1/rooms/tanuja",headers=head)
+print(r.json()) 
+
+"""
