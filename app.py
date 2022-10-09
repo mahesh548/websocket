@@ -135,8 +135,8 @@ def videocall(data):
 
 
 if __name__ == '__main__':
-    app.run()
-    #socketio.run(app,host="localhost",port=8000)
+    #app.run()
+    socketio.run(app,host="localhost",port=8000)
 
 
 
