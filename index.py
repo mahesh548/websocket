@@ -89,7 +89,7 @@ def update_room(data):
 @socketio.on('sync')
 
 def sync(data):
-    room = data['room']
+    room = data["room"]
     emit("sync", room=room)
 
 
